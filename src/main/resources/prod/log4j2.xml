@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+  <Appenders>
+    <Console name="Console" target="SYSTEM_OUT">
+      <PatternLayout pattern="P %style{%d{ISO8601}}{black} %highlight{%-5level }[%style{%t}{bright,blue}] %style{%C{1.}}{bright,yellow}: %msg%n%throwable" />
+    </Console>
+
+    <RollingFile 
+      name="RollingFile"
+      fileName="${LOG_DIR}/weathergateway.log"
+      filePattern="${LOG_DIR}/weathergateway-%d{-dd-MMMM-yyyy}-%i.log.gz"
+    >
+      <PatternLayout>
+        <pattern>%d %p %C{1.} [%t] %m%n</pattern>
+      </PatternLayout>
+
+      <Policies>
+        <SizeBasedTriggeringPolicy size="10 MB" />
+        <TimeBasedTriggeringPolicy />
+      </Policies>
+    </RollingFile>
+  </Appenders>
+    
+    
+<SMTP name="MailAppender"
+      subject="Log4j2 Demo [PROD]"
+      to="youremail@example.com"
+      from="log4j2-demo-alerts@example.com"
+      smtpHost="yourSMTPHost"
+      smtpPort="587"
+      smtpUsername="yourSMTPUsername"
+      smtpPassword="yourSMTPPassword"
+      bufferSize="1">
+    <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+    <PatternLayout>
+        <Pattern>${LOG_PATTERN}</Pattern>
+    </PatternLayout>
+</SMTP>
+    
+    
+  <Loggers>
+    <Logger name="de.poulter.weathergateway" level="INFO" />
+    
+    <Root level="ERROR">
+      <AppenderRef ref="Console" />
+      <AppenderRef ref="RollingFile" />
+    </Root>
+  </Loggers>
+</Configuration>
+
