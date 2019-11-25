@@ -1,4 +1,4 @@
-package gid.aid;
+package de.poulter.weathergateway.station;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -8,8 +8,6 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import org.junit.Test;
-
-import de.poulter.weathergateway.station.StationBinaryTools;
 
 public class ToolsTest {
 
