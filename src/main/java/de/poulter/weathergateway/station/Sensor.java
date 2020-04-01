@@ -67,33 +67,35 @@ public enum Sensor {
     private static class SensorFunctions {
         
         private static final BiFunction<byte[], Integer, Double> TEMPERATURE = (data, pos) -> { 
-            int value = StationBinaryTools.fromTwoBytes(data, pos);
+            double value = (double) StationBinaryTools.fromTwoBytes(data, pos);
             
             return value / 10.0;
         };
         
         private static final BiFunction<byte[], Integer, Double> HUMIDITY = (data, pos) -> { 
-            int value = StationBinaryTools.fromByte(data, pos);
+            double value = (double) StationBinaryTools.fromByte(data, pos);
             
-            return (double) value;
+            return value;
         };
         
         private static final BiFunction<byte[], Integer, Double> PRESSURE = (data, pos) -> { 
-            int value = StationBinaryTools.fromTwoBytes(data, pos);
+            double value = (double) StationBinaryTools.fromTwoBytes(data, pos);
             
             return value / 10.0;
         };
         
         private static final BiFunction<byte[], Integer, Double> WINDSPEED = (data, pos) -> { 
-            int value = StationBinaryTools.fromTwoBytes(data, pos);
+            double value = (double) StationBinaryTools.fromTwoBytes(data, pos);
             
-            return value / 10.0;
+            // this is m/s, but we prefer km/h
+            
+            return Math.round(value * 3.6) / 10.0;
         };         
 
         private static final BiFunction<byte[], Integer, Double> RAIN = (data, pos) -> { 
-            int value = StationBinaryTools.fromFourBytes(data, pos);
+            double value = (double) StationBinaryTools.fromFourBytes(data, pos);
             
-            return (double) value;
+            return value / 10.0;
         };
         
     }
