@@ -8,7 +8,7 @@
     <RollingFile 
       name="RollingFile"
       fileName="${LOG_DIR}/weathergateway.log"
-      filePattern="${LOG_DIR}/weathergateway-%d{-dd-MMMM-yyyy}-%i.log.gz"
+      filePattern="${LOG_DIR}/weathergateway-{yyyy-MM-dd}-%03i.log.gz"
     >
       <PatternLayout>
         <pattern>%d %p %C{1.} [%t] %m%n</pattern>
