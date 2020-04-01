@@ -109,15 +109,16 @@ public class DataService implements InitializingBean {
                 byte[] payload = StationBinaryTools.parse(all, 0x0b, 0x04);
                 
                 for (int pos = 0; pos < payload.length; ) {
-                    int sensorType = StationBinaryTools.fromByte(payload, pos);
+                    int sensorType = StationBinaryTools.fromByte(payload, pos++);
                     Sensor sensor = Sensor.getSensor(sensorType);
                     
                     if (sensor != null) {
-                        Double value = sensor.convertValue(payload, pos + 1);
-                        pos += sensor.getSize() + 1;
+                        Double value = sensor.convertValue(payload, pos);
+                        pos += sensor.getSize();
                         currentValues.put(sensor, value);
                         
                     } else {
+                        
                         log.warn("Unknown sensor index: " + sensorType);
                     }
                 }
