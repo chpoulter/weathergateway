@@ -97,27 +97,30 @@ public abstract class StationBinaryTools {
         return result;
     }
     
-    public static int fromByte(byte[] data, int pos) {
+    public static int fromByte1(byte[] data, int pos) {
         return data[pos] & 0xFF;
     }
+    
+    public static int fromByte2(byte[] data, int pos) {
+    	return data[pos];
+    }
+    
+    public static int fromTwoBytes1(byte[] data, int pos) {
+    	return (fromByte1(data, pos) << 8) | 
+    			fromByte1(data, pos + 1);
+    }
+    
+    public static int fromTwoBytes2(byte[] data, int pos) {
+    	return (fromByte2(data, pos) << 8) | 
+    			fromByte1(data, pos + 1);
+    }
 
-    public static int fromTwoBytes(byte[] data, int pos) {
-        int i1 = fromByte(data, pos);
-        int i2 = fromByte(data, pos + 1);
-        return (i1 << 8) + i2;
-    }
-    
-    public static int fromFourBytes(byte[] data, int pos) {
-        int i1 = fromByte(data, pos);
-        int i2 = fromByte(data, pos + 1);
-        int i3 = fromByte(data, pos + 2);
-        int i4 = fromByte(data, pos + 3);
-        return (i1 << 24) + (i2 << 16) + (i3 << 8) + i4;
-    }
-    
-    
-    
-    
+    public static int fromFourBytes2(byte[] data, int pos) {
+    	return (fromByte2(data, pos) << 24) |
+    	       (fromByte1(data, pos + 1) << 16) |
+    	       (fromByte1(data, pos + 2) << 8) |
+    		   (fromByte1(data, pos + 3));
+    }    
     
     public static byte[] parse(byte[] data, int expectedCommand, int expectedSubCommand) throws IOException {
         if ((data == null) || (data.length < 8)) {
@@ -125,19 +128,19 @@ public abstract class StationBinaryTools {
         }
         
         // magic
-        int magic = StationBinaryTools.fromTwoBytes(data, 0);            
+        int magic = StationBinaryTools.fromTwoBytes1(data, 0);            
         if (magic != 0xFFFF) {
             throw new IOException("Invalid magic values: " + Integer.toHexString(magic));
         }
         
         // command
-        int command = StationBinaryTools.fromByte(data, 2);            
+        int command = StationBinaryTools.fromByte1(data, 2);            
         if (command != expectedCommand) {
             throw new IOException("Invalid command: " + Integer.toHexString(command) + " <-> " + Integer.toHexString(expectedCommand));
         }
         
         // message length
-        int messageLength = StationBinaryTools.fromTwoBytes(data, 3);
+        int messageLength = StationBinaryTools.fromTwoBytes1(data, 3);
         if (data.length < (messageLength + 2)) {
             throw new IOException("Message to short: " + data.length + ", expected " + (messageLength + 2));
         }
@@ -147,7 +150,7 @@ public abstract class StationBinaryTools {
         }
 
         // subCommand
-        int subCommand = StationBinaryTools.fromByte(data, 5);            
+        int subCommand = StationBinaryTools.fromByte1(data, 5);            
         if (subCommand != expectedSubCommand) {
             throw new IOException("Invalid sub command: " + Integer.toHexString(subCommand) + " <-> " + Integer.toHexString(expectedSubCommand));
         }
@@ -179,19 +182,19 @@ public abstract class StationBinaryTools {
         }
         
         // magic
-        int magic = StationBinaryTools.fromTwoBytes(data, 0);            
+        int magic = StationBinaryTools.fromTwoBytes1(data, 0);            
         if (magic != 0xFFFF) {
             throw new IOException("Invalid magic values: " + Integer.toHexString(magic));
         }
         
         // command
-        int command = StationBinaryTools.fromByte(data, 2);            
+        int command = StationBinaryTools.fromByte1(data, 2);            
         if (command != expectedCommand) {
             throw new IOException("Invalid command: " + Integer.toHexString(command) + " <-> " + Integer.toHexString(expectedCommand));
         }
         
         // message length
-        int messageLength = StationBinaryTools.fromTwoBytes(data, 3);
+        int messageLength = StationBinaryTools.fromTwoBytes1(data, 3);
         if (data.length < messageLength) {
             throw new IOException("Message to short: " + data.length + ", expected " + (messageLength + 2));
         }

@@ -98,7 +98,7 @@ public class DataService implements InitializingBean {
                     throw new IOException("Not enough data");
                 }
                 
-                int len = StationBinaryTools.fromTwoBytes(first, 3) - 3;
+                int len = StationBinaryTools.fromTwoBytes1(first, 3) - 3;
                 byte[] all = new byte[len + 5];                
                 read = inputStream.read(all, 5, len);                
                 if (read < len) {
@@ -109,7 +109,7 @@ public class DataService implements InitializingBean {
                 byte[] payload = StationBinaryTools.parse(all, 0x0b, 0x04);
                 
                 for (int pos = 0; pos < payload.length; ) {
-                    int sensorType = StationBinaryTools.fromByte(payload, pos++);
+                    int sensorType = StationBinaryTools.fromByte1(payload, pos++);
                     Sensor sensor = Sensor.getSensor(sensorType);
                     
                     if (sensor != null) {
@@ -132,15 +132,11 @@ public class DataService implements InitializingBean {
         }
     }
 
-    
-    
-    
-    
 //    @Scheduled(fixedRate=10000)
 //    public void cw() {
 //        log.info("--- Werte ---------");
 //        for (Sensor sensor : currentValues.keySet().stream().sorted().collect(Collectors.toList())) {
-//            log.info("Sensor " + sensor.getName() + ": " + currentValues.get(sensor) + " " + sensor.getEinheit().getSymbol() + ".");
+//            log.info("Sensor " + sensor.name() + ": " + currentValues.get(sensor) + " " + sensor.getUnit() + ".");
 //        }
 //        log.info("-------------------");
 //    }

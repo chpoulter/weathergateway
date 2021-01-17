@@ -91,10 +91,10 @@ public class SeekerService  {
             // IP, Port
             byte[] stationAddressBytes = Arrays.copyOfRange(payload, 6, 10);
             InetAddress stationAddress = InetAddress.getByAddress(stationAddressBytes);
-            int port = StationBinaryTools.fromTwoBytes(payload, 10);
+            int port = StationBinaryTools.fromTwoBytes1(payload, 10);
             
             // name            
-            int nameLength = StationBinaryTools.fromByte(payload, 12) - 1;
+            int nameLength = StationBinaryTools.fromByte1(payload, 12) - 1;
             int nameLengthFromStart = 13 + nameLength;
             
             if (payload.length < nameLengthFromStart) {

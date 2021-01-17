@@ -35,7 +35,7 @@ public class ToolsTest {
         //             11   12
                      "0x45 0x42", StationBinaryTools.byteArrayToString(result));
     
-        int nameLength = StationBinaryTools.fromByte(result, 12) - 1;
+        int nameLength = StationBinaryTools.fromByte1(result, 12) - 1;
         int nameLengthFromStart = 13 + nameLength;
         assertEquals(19, nameLength);
         assertEquals(32, result.length);

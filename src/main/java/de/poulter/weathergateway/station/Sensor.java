@@ -16,7 +16,7 @@ public enum Sensor {
     OutsideHumidity(7, 1, Unit.HUMIDITY, SensorFunctions.HUMIDITY),
     BarometricPressureAbsolute(8, 2, Unit.PRESSURE, SensorFunctions.PRESSURE),
     BarometricPressureRelative(9, 2, Unit.PRESSURE, SensorFunctions.PRESSURE),
-    WindDirection(10, 2, Unit.DEGREE, (data, pos) -> (double) StationBinaryTools.fromTwoBytes(data, pos)),
+    WindDirection(10, 2, Unit.DEGREE, (data, pos) -> (double) StationBinaryTools.fromTwoBytes2(data, pos)),
     WindSpeed(11, 2, Unit.SPEED, SensorFunctions.WINDSPEED),
     GustyWindSpeed(12, 2, Unit.SPEED, SensorFunctions.WINDSPEED),
     RainHour(14, 4, Unit.MM, SensorFunctions.RAIN),
@@ -25,9 +25,9 @@ public enum Sensor {
     RainMonth(18, 4, Unit.MM, SensorFunctions.RAIN),
     RainYear(19, 4, Unit.MM, SensorFunctions.RAIN),
     RainAll(20, 4, Unit.MM, SensorFunctions.RAIN),
-    Lightness(21, 4, Unit.LUX, (data, pos) -> StationBinaryTools.fromFourBytes(data, pos) / 10.0),
-    UvRaw(22, 2, Unit.UWM2, (data, pos) -> (double) StationBinaryTools.fromTwoBytes(data, pos)),
-    UvIdxRaw(23, 1, Unit.NONE, (data, pos) -> (double) StationBinaryTools.fromByte(data, pos)),
+    Lightness(21, 4, Unit.LUX, (data, pos) -> StationBinaryTools.fromFourBytes2(data, pos) / 10.0),
+    UvRaw(22, 2, Unit.UWM2, (data, pos) -> (double) StationBinaryTools.fromTwoBytes2(data, pos)),
+    UvIdxRaw(23, 1, Unit.NONE, (data, pos) -> (double) StationBinaryTools.fromByte2(data, pos)),
     ;
     
     private static final Map<Integer, Sensor> SENSORBYID = EnumSet.allOf(Sensor.class).stream().collect(Collectors.toMap(s -> s.id, s -> s));
@@ -67,25 +67,25 @@ public enum Sensor {
     private static class SensorFunctions {
         
         private static final BiFunction<byte[], Integer, Double> TEMPERATURE = (data, pos) -> { 
-            double value = (double) StationBinaryTools.fromTwoBytes(data, pos);
+            double value = (double) StationBinaryTools.fromTwoBytes2(data, pos);
             
             return value / 10.0;
         };
         
         private static final BiFunction<byte[], Integer, Double> HUMIDITY = (data, pos) -> { 
-            double value = (double) StationBinaryTools.fromByte(data, pos);
+            double value = (double) StationBinaryTools.fromByte2(data, pos);
             
             return value;
         };
         
         private static final BiFunction<byte[], Integer, Double> PRESSURE = (data, pos) -> { 
-            double value = (double) StationBinaryTools.fromTwoBytes(data, pos);
+            double value = (double) StationBinaryTools.fromTwoBytes2(data, pos);
             
             return value / 10.0;
         };
         
         private static final BiFunction<byte[], Integer, Double> WINDSPEED = (data, pos) -> { 
-            double value = (double) StationBinaryTools.fromTwoBytes(data, pos);
+            double value = (double) StationBinaryTools.fromTwoBytes2(data, pos);
             
             // this is m/s, but we prefer km/h
             
@@ -93,7 +93,7 @@ public enum Sensor {
         };         
 
         private static final BiFunction<byte[], Integer, Double> RAIN = (data, pos) -> { 
-            double value = (double) StationBinaryTools.fromFourBytes(data, pos);
+            double value = (double) StationBinaryTools.fromFourBytes2(data, pos);
             
             return value / 10.0;
         };
