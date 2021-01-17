@@ -4,7 +4,7 @@
 
   <groupId>de.poulter</groupId>
   <artifactId>weathergateway</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.0.0</version>
   <packaging>jar</packaging>
 
   <name>The Weather Gateway</name>
@@ -71,8 +71,8 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
-          <source>1.11</source>
-          <target>1.11</target>
+          <source>11</source>
+          <target>11</target>
         </configuration>
       </plugin>
       
