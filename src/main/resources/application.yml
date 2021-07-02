@@ -1,0 +1,9 @@
+spring.profiles.active: dev
+
+---
+spring.profiles: dev
+logging.config: classpath:log4j2-dev.xml
+
+---
+spring.profiles: prod
+logging.config: classpath:log4j2-prod.xml

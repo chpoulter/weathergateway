@@ -1,3 +1,23 @@
+/*
+ * Weathergateway
+ *
+ * Copyright (C) 2019 Christian Poulter
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ */
+
 package de.poulter.weathergateway.station;
 
 import java.io.IOException;
@@ -18,6 +38,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+/**
+ * @author Christian Poulter <devel@poulter.de>
+ */
 @Service
 public class DataService implements InitializingBean {
 
@@ -31,8 +54,7 @@ public class DataService implements InitializingBean {
     
     @Value("${data.timeout}")
     private Integer socketTimeout;
-    
-    
+        
     @Override
     public void afterPropertiesSet() throws Exception {
         this.ip = null;
@@ -95,21 +117,23 @@ public class DataService implements InitializingBean {
                 int read = inputStream.read(first);
                 
                 if (read < 5) {
+                    log.warn("Not enough data: " + read + " bytes");
                     throw new IOException("Not enough data");
                 }
                 
-                int len = StationBinaryTools.fromTwoBytes1(first, 3) - 3;
+                int len = StationBinaryTools.fromTwoBytesUnsigned(first, 3) - 3;
                 byte[] all = new byte[len + 5];                
                 read = inputStream.read(all, 5, len);                
                 if (read < len) {
-                    throw new IOException("Not enough data: " + len + "(" + StationBinaryTools.byteArrayToString(first) + ")");
+                    log.warn("Not enough data: " + len + "(" + StationBinaryTools.byteArrayToString(first) + ")");
+                    throw new IOException("Not enough data");
                 }
                 
                 System.arraycopy(first, 0, all, 0, first.length);
                 byte[] payload = StationBinaryTools.parse(all, 0x0b, 0x04);
                 
                 for (int pos = 0; pos < payload.length; ) {
-                    int sensorType = StationBinaryTools.fromByte1(payload, pos++);
+                    int sensorType = StationBinaryTools.fromByteUnsigned(payload, pos++);
                     Sensor sensor = Sensor.getSensor(sensorType);
                     
                     if (sensor != null) {
@@ -131,7 +155,9 @@ public class DataService implements InitializingBean {
             log.warn("Unable to create socket.", ex);
         }
     }
-
+    
+//    This would dump current data to logfile.
+//    
 //    @Scheduled(fixedRate=10000)
 //    public void cw() {
 //        log.info("--- Werte ---------");

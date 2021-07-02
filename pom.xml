@@ -4,12 +4,28 @@
 
   <groupId>de.poulter</groupId>
   <artifactId>weathergateway</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <packaging>jar</packaging>
 
   <name>The Weather Gateway</name>
-  <url>http://www.poulter.de</url>
-
+  <description>Pulls current weather information from WS980 Wifi and offers the data as REST service.</description>
+  <url>https://blog.poulter.de/projekte/wetterstation-elv-ws980wifi.html</url>
+  
+  <licenses>
+    <license>
+      <name>The GNU General Public License v3.0</name>
+      <url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
+    </license>
+  </licenses>
+  
+  <developers>
+    <developer>
+      <name>Christian Poulter</name>
+      <email>devel@poulter.de</email>
+      <url>www.poulter.de</url>
+    </developer>
+  </developers>
+    
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
@@ -18,6 +34,8 @@
     
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
   </properties>
     
   <dependencies>
@@ -67,15 +85,7 @@
   
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>11</source>
-          <target>11</target>
-        </configuration>
-      </plugin>
-      
+    
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>

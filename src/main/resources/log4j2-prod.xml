@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration name="prod">
+  <Properties>
+    <Property name="LOG_DIR">${sys:logging.file.path:-logs}</Property>
+  </Properties>
+  <Appenders>
+    <Console name="Console" target="SYSTEM_OUT">
+      <PatternLayout pattern="P %d{ISO8601} %highlight{%-5level }[%style{%t}{bright,blue}] %style{%C{1.}}{bright,yellow}: %msg%n%throwable" />
+    </Console>
+
+    <RollingFile 
+      name="RollingFile"
+      fileName="${LOG_DIR}/weathergateway.log"
+      filePattern="${LOG_DIR}/weathergateway-%d{yyyy-MM-dd_HH-mm-ss}_%i.log.gz"
+    >
+      <PatternLayout>
+        <pattern>%d %p %C{1.} [%t] %m%n</pattern>
+      </PatternLayout>
+
+      <Policies>
+        <OnStartupTriggeringPolicy />
+        <CronTriggeringPolicy schedule="0 0 0 * * ?" evaluateOnStartup="false" />
+        <SizeBasedTriggeringPolicy size="10MB" />        
+      </Policies>
+      <DefaultRolloverStrategy max="10" />
+    </RollingFile>
+  </Appenders>
+    
+  <Loggers>
+    <Logger name="de.poulter.weathergateway" level="INFO" />
+    
+    <Root level="ERROR">
+      <AppenderRef ref="Console" />
+      <AppenderRef ref="RollingFile" />
+    </Root>
+  </Loggers>
+</Configuration>
+

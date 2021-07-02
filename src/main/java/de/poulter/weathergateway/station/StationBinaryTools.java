@@ -1,9 +1,32 @@
+/*
+ * Weathergateway
+ *
+ * Copyright (C) 2019 Christian Poulter
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ */
+
 package de.poulter.weathergateway.station;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+/**
+ * @author Christian Poulter <devel@poulter.de>
+ */
 public abstract class StationBinaryTools {
 
     private static final byte MAGIC1 = (byte) 0xFF;
@@ -19,16 +42,16 @@ public abstract class StationBinaryTools {
         return createCommand(dataAsArray); 
     }
 
-    public static byte[] createCommand(int payload1, int... payload2) {
+    public static byte[] createCommand(int payload1, int payload2) {
+        byte[] payload2asBytearray = {(byte)payload2};
+        return createCommand((byte) payload1, payload2asBytearray);
+    }
+    
+    public static byte[] createCommand(int payload1, int[] payload2) {
         return createCommand((byte) payload1, intToByteArray(payload2)); 
     }
 
     // byte
-    public static byte[] createCommand(byte data) {
-        byte[] dataAsArray = { data };
-        return createCommand(dataAsArray);
-    }
-
     public static byte[] createCommand(byte[] payload) {
         int length = payload.length + 3;
         
@@ -97,29 +120,29 @@ public abstract class StationBinaryTools {
         return result;
     }
     
-    public static int fromByte1(byte[] data, int pos) {
+    public static int fromByteUnsigned(byte[] data, int pos) {
         return data[pos] & 0xFF;
     }
     
-    public static int fromByte2(byte[] data, int pos) {
-    	return data[pos];
-    }
-    
-    public static int fromTwoBytes1(byte[] data, int pos) {
-    	return (fromByte1(data, pos) << 8) | 
-    			fromByte1(data, pos + 1);
-    }
-    
-    public static int fromTwoBytes2(byte[] data, int pos) {
-    	return (fromByte2(data, pos) << 8) | 
-    			fromByte1(data, pos + 1);
+    public static int fromByteSigned(byte[] data, int pos) {
+        return data[pos];
     }
 
-    public static int fromFourBytes2(byte[] data, int pos) {
-    	return (fromByte2(data, pos) << 24) |
-    	       (fromByte1(data, pos + 1) << 16) |
-    	       (fromByte1(data, pos + 2) << 8) |
-    		   (fromByte1(data, pos + 3));
+    public static int fromTwoBytesUnsigned(byte[] data, int pos) {
+    	return (fromByteUnsigned(data, pos) << 8) | 
+    			fromByteUnsigned(data, pos + 1);
+    }
+    
+    public static int fromTwoBytesSigned(byte[] data, int pos) {
+    	return (fromByteSigned(data, pos) << 8) | 
+    			fromByteUnsigned(data, pos + 1);
+    }
+
+    public static int fromFourBytesSigned(byte[] data, int pos) {
+    	return (fromByteSigned(data, pos) << 24) |
+    	       (fromByteUnsigned(data, pos + 1) << 16) |
+    	       (fromByteUnsigned(data, pos + 2) << 8) |
+    		    fromByteUnsigned(data, pos + 3);
     }    
     
     public static byte[] parse(byte[] data, int expectedCommand, int expectedSubCommand) throws IOException {
@@ -128,19 +151,19 @@ public abstract class StationBinaryTools {
         }
         
         // magic
-        int magic = StationBinaryTools.fromTwoBytes1(data, 0);            
+        int magic = StationBinaryTools.fromTwoBytesUnsigned(data, 0);            
         if (magic != 0xFFFF) {
             throw new IOException("Invalid magic values: " + Integer.toHexString(magic));
         }
         
         // command
-        int command = StationBinaryTools.fromByte1(data, 2);            
+        int command = StationBinaryTools.fromByteUnsigned(data, 2);            
         if (command != expectedCommand) {
             throw new IOException("Invalid command: " + Integer.toHexString(command) + " <-> " + Integer.toHexString(expectedCommand));
         }
         
         // message length
-        int messageLength = StationBinaryTools.fromTwoBytes1(data, 3);
+        int messageLength = StationBinaryTools.fromTwoBytesUnsigned(data, 3);
         if (data.length < (messageLength + 2)) {
             throw new IOException("Message to short: " + data.length + ", expected " + (messageLength + 2));
         }
@@ -150,7 +173,7 @@ public abstract class StationBinaryTools {
         }
 
         // subCommand
-        int subCommand = StationBinaryTools.fromByte1(data, 5);            
+        int subCommand = StationBinaryTools.fromByteUnsigned(data, 5);            
         if (subCommand != expectedSubCommand) {
             throw new IOException("Invalid sub command: " + Integer.toHexString(subCommand) + " <-> " + Integer.toHexString(expectedSubCommand));
         }
@@ -182,19 +205,19 @@ public abstract class StationBinaryTools {
         }
         
         // magic
-        int magic = StationBinaryTools.fromTwoBytes1(data, 0);            
+        int magic = StationBinaryTools.fromTwoBytesUnsigned(data, 0);            
         if (magic != 0xFFFF) {
             throw new IOException("Invalid magic values: " + Integer.toHexString(magic));
         }
         
         // command
-        int command = StationBinaryTools.fromByte1(data, 2);            
+        int command = StationBinaryTools.fromByteUnsigned(data, 2);            
         if (command != expectedCommand) {
             throw new IOException("Invalid command: " + Integer.toHexString(command) + " <-> " + Integer.toHexString(expectedCommand));
         }
         
         // message length
-        int messageLength = StationBinaryTools.fromTwoBytes1(data, 3);
+        int messageLength = StationBinaryTools.fromTwoBytesUnsigned(data, 3);
         if (data.length < messageLength) {
             throw new IOException("Message to short: " + data.length + ", expected " + (messageLength + 2));
         }

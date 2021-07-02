@@ -1,6 +1,27 @@
+/*
+ * Weathergateway
+ *
+ * Copyright (C) 2019 Christian Poulter
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ */
+
 package de.poulter.weathergateway.station;
 
 import static org.junit.Assert.assertEquals;
+import static de.poulter.weathergateway.station.StationBinaryTools.stringToByteArray;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
@@ -9,6 +30,9 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
+/**
+ * @author Christian Poulter <devel@poulter.de>
+ */
 public class ToolsTest {
 
     @Test
@@ -35,7 +59,7 @@ public class ToolsTest {
         //             11   12
                      "0x45 0x42", StationBinaryTools.byteArrayToString(result));
     
-        int nameLength = StationBinaryTools.fromByte1(result, 12) - 1;
+        int nameLength = StationBinaryTools.fromByteUnsigned(result, 12) - 1;
         int nameLengthFromStart = 13 + nameLength;
         assertEquals(19, nameLength);
         assertEquals(32, result.length);
@@ -120,4 +144,45 @@ public class ToolsTest {
         }        
     }
 
+    @Test
+    public void testFrom2() throws IOException {
+        byte[] data = stringToByteArray("0x00 0x01 0x7F 0xFF 0xFE 0x80");
+        assertEquals(0, StationBinaryTools.fromByteSigned(data, 0));
+        assertEquals(1, StationBinaryTools.fromByteSigned(data, 1));
+        assertEquals(127, StationBinaryTools.fromByteSigned(data, 2));
+        assertEquals(-1, StationBinaryTools.fromByteSigned(data, 3));
+        assertEquals(-2, StationBinaryTools.fromByteSigned(data, 4));
+        assertEquals(-128, StationBinaryTools.fromByteSigned(data, 5));
+    
+        data = stringToByteArray("0x00 0x00 0x00 0x01 0x00 0xda 0x01 0xFF 0x7F 0xFF 0xFF 0xFF 0xFA 0x00 0x80 0x01 0x80 0x00");
+        assertEquals(0, StationBinaryTools.fromTwoBytesSigned(data, 0));
+        assertEquals(1, StationBinaryTools.fromTwoBytesSigned(data, 2));
+        assertEquals(218, StationBinaryTools.fromTwoBytesSigned(data, 4));
+        assertEquals(511, StationBinaryTools.fromTwoBytesSigned(data, 6));
+        assertEquals(32767, StationBinaryTools.fromTwoBytesSigned(data, 8));
+        assertEquals(-1, StationBinaryTools.fromTwoBytesSigned(data, 10));
+        assertEquals(-1536, StationBinaryTools.fromTwoBytesSigned(data, 12));
+        assertEquals(-32767, StationBinaryTools.fromTwoBytesSigned(data, 14));
+        assertEquals(-32768, StationBinaryTools.fromTwoBytesSigned(data, 16));
+        
+        assertEquals(0, StationBinaryTools.fromFourBytesSigned(stringToByteArray("0x00 0x00 0x00 0x00"), 0));
+        assertEquals(1, StationBinaryTools.fromFourBytesSigned(stringToByteArray("0x00 0x00 0x00 0x01"), 0));
+        assertEquals(255, StationBinaryTools.fromFourBytesSigned(stringToByteArray("0x00 0x00 0x00 0xFF"), 0));
+        assertEquals(256, StationBinaryTools.fromFourBytesSigned(stringToByteArray("0x00 0x00 0x01 0x00"), 0));
+        assertEquals(65535, StationBinaryTools.fromFourBytesSigned(stringToByteArray("0x00 0x00 0xFF 0xFF"), 0));
+        assertEquals(65536, StationBinaryTools.fromFourBytesSigned(stringToByteArray("0x00 0x01 0x00 0x00"), 0));
+        assertEquals(16777215, StationBinaryTools.fromFourBytesSigned(stringToByteArray("0x00 0xFF 0xFF 0xFF"), 0));
+        assertEquals(16777216, StationBinaryTools.fromFourBytesSigned(stringToByteArray("0x01 0x00 0x00 0x00"), 0));
+        assertEquals(2147483647, StationBinaryTools.fromFourBytesSigned(stringToByteArray("0x7F 0xFF 0xFF 0xFF"), 0));
+    
+        assertEquals(-1, StationBinaryTools.fromFourBytesSigned(stringToByteArray("0xFF 0xFF 0xFF 0xFF"), 0));
+        assertEquals(-2, StationBinaryTools.fromFourBytesSigned(stringToByteArray("0xFF 0xFF 0xFF 0xFE"), 0));
+        assertEquals(-256, StationBinaryTools.fromFourBytesSigned(stringToByteArray("0xFF 0xFF 0xFF 0x00"), 0));
+        assertEquals(-257, StationBinaryTools.fromFourBytesSigned(stringToByteArray("0xFF 0xFF 0xFE 0xFF"), 0));
+        assertEquals(-65536, StationBinaryTools.fromFourBytesSigned(stringToByteArray("0xFF 0xFF 0x00 0x00"), 0));
+        assertEquals(-65537, StationBinaryTools.fromFourBytesSigned(stringToByteArray("0xFF 0xFE 0xFF 0xFF"), 0));
+        assertEquals(-16777216, StationBinaryTools.fromFourBytesSigned(stringToByteArray("0xFF 0x00 0x00 0x00"), 0));
+        assertEquals(-16777217, StationBinaryTools.fromFourBytesSigned(stringToByteArray("0xFE 0xFF 0xFF 0xFF"), 0));    
+        assertEquals(-2147483648, StationBinaryTools.fromFourBytesSigned(stringToByteArray("0x80 0x00 0x00 0x00"), 0));    
+    }
 }

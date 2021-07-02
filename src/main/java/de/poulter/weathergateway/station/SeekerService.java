@@ -1,3 +1,23 @@
+/*
+ * Weathergateway
+ *
+ * Copyright (C) 2019 Christian Poulter
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ */
+
 package de.poulter.weathergateway.station;
 
 import java.io.IOException;
@@ -23,6 +43,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+/**
+ * @author Christian Poulter <devel@poulter.de>
+ */
 @Service
 public class SeekerService  {
 
@@ -73,10 +96,8 @@ public class SeekerService  {
             int packetLength = packet.getLength();
             byte[] response = packet.getData();
                     
-            //log.info("Got " + packetLength + " bytes as response: " + Tools.byteArrayToString(response));
-                        
             if (packetLength < (POS_HEADER_MESSAGELENGTH + 1)) {
-                log.warn("Reponse to short: " + packetLength);
+                log.warn("Reponse to short: " + packetLength + " bytes");
                 dataService.clearStation();
                 return;
             }
@@ -91,14 +112,14 @@ public class SeekerService  {
             // IP, Port
             byte[] stationAddressBytes = Arrays.copyOfRange(payload, 6, 10);
             InetAddress stationAddress = InetAddress.getByAddress(stationAddressBytes);
-            int port = StationBinaryTools.fromTwoBytes1(payload, 10);
+            int port = StationBinaryTools.fromTwoBytesUnsigned(payload, 10);
             
             // name            
-            int nameLength = StationBinaryTools.fromByte1(payload, 12) - 1;
+            int nameLength = StationBinaryTools.fromByteUnsigned(payload, 12) - 1;
             int nameLengthFromStart = 13 + nameLength;
             
             if (payload.length < nameLengthFromStart) {
-                log.warn("Reponse was to short: " + payload.length + ", expected " + nameLengthFromStart + ".");
+                log.warn("Reponse was to short: " + payload.length + " bytes, expected " + nameLengthFromStart + " bytes.");
                 dataService.clearStation();
                 return;
             }
@@ -138,7 +159,11 @@ public class SeekerService  {
                     continue;
                 }
 
-                networkInterface.getInterfaceAddresses().stream().map(a -> a.getBroadcast()).filter(Objects::nonNull).forEach(broadcastList::add);
+                networkInterface.getInterfaceAddresses()
+                    .stream()
+                    .map(a -> a.getBroadcast())
+                    .filter(Objects::nonNull)
+                    .forEach(broadcastList::add);
             }
             
         } catch (SocketException ex) {
